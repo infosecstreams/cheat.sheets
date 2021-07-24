@@ -1,52 +1,55 @@
 % Fuzzers
 
 $ target: echo $target
+$ scheme: echo "http https" | tr " " "\n"
 $ wordlists: fdfind . /usr/share/{seclists,wordlists} /usr/share/amass/ -Ltf | sort -u
+$ file_exts: echo "php txt cgi html js" | tr ' ' '\n' --- --multi --map "navi fn map::expand"
+$ file_exts_comma: echo "<file_exts>" | tr ' ' ','
 
-# Feroxbuster (easy)
+# Feroxbuster (faster)
 
-feroxbuster -t 100 -u <target> --wordlist <wordlists>
+feroxbuster -t 100 -u <scheme>://<target> --wordlist <wordlists>
 
-# Feroxbuster (furi [php,txt,cgi,html,js])
+# Feroxbuster (slower [exts: php txt cgi html js])
 
-feroxbuster -t 100 -u <target> --wordlist <wordlists> -x php,txt,cgi,html,js
+feroxbuster -t 100 -u <scheme>://<target> --wordlist <wordlists> -x <file_exts>
 
-# Gobuster (easy)
+# Gobuster (faster)
 
-gobuster -t 15 dir -u <target> -w <wordlists> | tee ${1}.$(basename $PWD).gobuster.txt
+gobuster -t 15 dir -u <scheme>://<target> -w <wordlists> | tee <target>.$(basename $PWD).gobuster.txt
 
-# Gobuster (more extensions [php,txt,cgi,html,js])
+# Gobuster (slower [exts: php txt cgi html js])
 
-gobuster -t 15 dir -u $1 -w <wordlists> -x php,txt,cgi,html,js | tee ${1}.$(basename $PWD).gobuster-extended.txt
+gobuster -t 15 dir -u <scheme>://<target> -w <wordlists> -x <file_exts_comma> | tee <target>.$(basename $PWD).gobuster-extended.txt
 
-# wfuzz (furious)
+# wfuzz (POST [required:FUZZ in params])
 
-echo 'wfuzz -c -z range,<min_range>-<max_range> -d "<params>" -X POST -u <target>'
+wfuzz -c -z range,<min_range>-<max_range> -d "<params>" -X POST -u <target>
 
 # ffuf
 
+ffuf smth smth smth todo:(RitchieS)
 
 # hydra [ssh] (user/password file)
 
-echo hydra -L users.txt -P pass.txt <target> -t 16 ssh
+hydra -L users.txt -P pass.txt <target> -t 16 ssh
 
 # hydra [ftp] (user/password file)
 
-echo hydra -L users.txt -P pass.txt <target> -t 16 ftp
+hydra -L users.txt -P pass.txt <target> -t 16 ftp
 
 # hydra [ssh] (user file/static password) 
 
-echo hydra -L users.txt -P <pass> <target> -t 16 ftp
+hydra -L users.txt -P <pass> <target> -t 16 ssh
 
 # hydra [ftp] (user file/static password)
 
-echo hydra -L users.txt -P <pass> <target> -t 16 ftp
+hydra -L users.txt -P <pass> <target> -t 16 ftp
 
 # hydra [ssh] (static user/password file) 
 
-echo hydra -L <user> -P pass.txt <target> -t 16 ftp
+hydra -L <user> -P pass.txt <target> -t 16 ssh
 
 # hydra [ftp] (static user/password file)
 
-echo hydra -L <user> -P pass.txt <target> -t 16 ftp
-
+hydra -L <user> -P pass.txt <target> -t 16 ftp

