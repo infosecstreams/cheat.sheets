@@ -1,0 +1,11 @@
+% Scanners
+
+$ ip: echo $ip
+
+# Rustscan
+
+echo sudo rustscan -b 8192 -u 16384 -a <ip> -- -sS -sV -sC -oN <ip>.$(basename $PWD).nmap.txt
+
+# nmap
+
+echo sudo nmap -p<ports> -sS -sV -sC -oN <ip>.$(basename $PWD).nmap.txt <ip>

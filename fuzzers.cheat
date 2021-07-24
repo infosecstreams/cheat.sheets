@@ -1,0 +1,52 @@
+% Fuzzers
+
+$ target: echo $target
+$ wordlists: fdfind . /usr/share/{seclists,wordlists} /usr/share/amass/ -Ltf | sort -u
+
+# Feroxbuster (easy)
+
+feroxbuster -t 100 -u <target> --wordlist <wordlists>
+
+# Feroxbuster (furi [php,txt,cgi,html,js])
+
+feroxbuster -t 100 -u <target> --wordlist <wordlists> -x php,txt,cgi,html,js
+
+# Gobuster (easy)
+
+gobuster -t 15 dir -u <target> -w <wordlists> | tee ${1}.$(basename $PWD).gobuster.txt
+
+# Gobuster (more extensions [php,txt,cgi,html,js])
+
+gobuster -t 15 dir -u $1 -w <wordlists> -x php,txt,cgi,html,js | tee ${1}.$(basename $PWD).gobuster-extended.txt
+
+# wfuzz (furious)
+
+echo 'wfuzz -c -z range,<min_range>-<max_range> -d "<params>" -X POST -u <target>'
+
+# ffuf
+
+
+# hydra [ssh] (user/password file)
+
+echo hydra -L users.txt -P pass.txt <target> -t 16 ssh
+
+# hydra [ftp] (user/password file)
+
+echo hydra -L users.txt -P pass.txt <target> -t 16 ftp
+
+# hydra [ssh] (user file/static password) 
+
+echo hydra -L users.txt -P <pass> <target> -t 16 ftp
+
+# hydra [ftp] (user file/static password)
+
+echo hydra -L users.txt -P <pass> <target> -t 16 ftp
+
+# hydra [ssh] (static user/password file) 
+
+echo hydra -L <user> -P pass.txt <target> -t 16 ftp
+
+# hydra [ftp] (static user/password file)
+
+echo hydra -L <user> -P pass.txt <target> -t 16 ftp
+
