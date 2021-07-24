@@ -1,6 +1,6 @@
 % Fuzzers
 
-$ target: echo $target
+$ target: if [[ ! -z $target ]]; then; echo $target; else echo ""; fi
 $ scheme: echo "http https" | tr " " "\n"
 $ wordlists: fdfind . /usr/share/{seclists,wordlists} /usr/share/amass/ -Ltf | sort -u
 $ file_exts: echo "php txt cgi html js" | tr ' ' '\n' --- --multi --map "navi fn map::expand"

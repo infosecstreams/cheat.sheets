@@ -39,6 +39,6 @@ You should restart your shell session. Now when you press `ctrl+g` and you shoul
 
 ## Running
 
-1. Run `navi`:
+1. Run `navi` :
 
-    `$ navi`
+    `$ navi` or ... press `ctrl+g` if you installed the widget...!!!
