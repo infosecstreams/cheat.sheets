@@ -4,13 +4,10 @@ $ ip: echo $ip
 $ common_ports: 
 
 # rustscan
-
 sudo rustscan -b 8192 -u 16384 -a <ip> -- -sS -sV -sC -oN <ip>.$(basename $PWD).nmap.txt
 
 # nmap
-
 sudo nmap -p<ports> -sS -sV -sC -v -oN <ip>.$(basename $PWD).nmap.txt <ip>
 
 # nmap (vuln scripts)
-
-sudo nmap -p<ports> -sS -sV -sC -v --scripts=vuln -oN <ip>.$(basename $PWD).nmap.txt <ip>
+sudo nmap -p<ports> -sS -sV -sC -v --script=vuln -oN <ip>.$(basename $PWD).nmap.txt <ip>
