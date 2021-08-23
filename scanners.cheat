@@ -1,10 +1,13 @@
 % Scanners
 
-$ ip: echo $ip
+;$ ip:
 $ common_ports: 
 
 # rustscan
 sudo rustscan -b 8192 -u 16384 -a <ip> -- -sS -sV -sC -oN <ip>.$(basename $PWD).nmap.txt
+
+# rustscan (higher timeout + retries)
+sudo rustscan -t 3000 --tries 2 -b 8192 -u 16384 -a <ip> -- -sS -sV -sC -oN <ip>.$(basename $PWD).nmap.txt
 
 # nmap
 sudo nmap -p<ports> -sS -sV -sC -v -oN <ip>.$(basename $PWD).nmap.txt <ip>
