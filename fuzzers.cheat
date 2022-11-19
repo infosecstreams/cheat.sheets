@@ -1,18 +1,18 @@
 % Fuzzers
 
-$ target: if [[ ! -z $target ]]; then; echo $target; else echo ""; fi
+$ target: if [[ ! -z $target ]]; then echo $target; fi
 $ scheme: echo "http https" | tr " " "\n"
 $ wordlists: fdfind . /usr/share/{seclists,wordlists} /usr/share/amass/ -Ltf | sort -u
-$ file_exts: echo "php txt cgi html js" | tr ' ' '\n' --- --multi --map "navi fn map::expand"
+$ file_exts: echo "php txt cgi html htm js css png jpg jpeg gif svg bmp" | tr ' ' '\n' --- --multi --map "navi fn map::expand"
 $ file_exts_comma: echo "<file_exts>" | tr ' ' ','
 
 # Feroxbuster (faster)
 
-feroxbuster -t 100 -u <scheme>://<target> --wordlist <wordlists>
+feroxbuster -eBEg --auto-tune --scan-limit 3 -u <scheme>://<target> --wordlist <wordlists>
 
 # Feroxbuster (slower [exts: php txt cgi html js])
 
-feroxbuster -t 100 -u <scheme>://<target> --wordlist <wordlists> -x <file_exts>
+feroxbuster -eBEg --auto-tune --scan-limit 3 -u <scheme>://<target> --wordlist <wordlists> -x <file_exts>
 
 # Gobuster (faster)
 
