@@ -1,0 +1,78 @@
+% NetExec / CrackMapExec
+
+;$ ip: $ip
+;$ username: ''
+;$ password:  ''
+
+
+# SMB Connectivity Check
+nxc smb <ip>
+
+
+## Enumerating SMB shares
+
+# SMB Share NULL session
+nxc smb <ip> -u '' -p ''
+# SMB Share Anonymous session
+nxc smb <ip> -u 'anonymous' -p '' --local-auth
+# SMB Share Guest session
+nxc smb <ip> -u 'guest' -p ''
+# SMB Share Authenticated session
+nxc smb <ip> -u '<username>' -p '<password>'
+
+
+## Spider SMB shares
+
+# Spider SMB Share NULL session
+nxc smb <ip> -u '' -p '' -M spider_plus
+# Spider SMB Share Anonymous session
+nxc smb <ip> -u 'anonymous' -p '' --local-auth -M spider_plus
+# Spider SMB Share Guest session
+nxc smb <ip> -u 'guest' -p '' -M spider_plus
+# Spider SMB Share Authenticated session
+nxc smb <ip> -u '<username>' -p '<password>' -M spider_plus
+
+# Spider+Download SMB Share NULL session
+nxc smb <ip> -u '' -p '' -M spider_plus -o DOWNLOAD_FLAG=true OUTPUT_FOLDER=.
+# Spider+Download SMB Share Anonymous session
+nxc smb <ip> -u 'anonymous' -p '' --local-auth -M spider_plus -o DOWNLOAD_FLAG=true OUTPUT_FOLDER=.
+# Spider+Download SMB Share Guest session
+nxc smb <ip> -u 'guest' -p '' -M spider_plus -o DOWNLOAD_FLAG=true OUTPUT_FOLDER=.
+# Spider+Download SMB Share Authenticated session
+nxc smb <ip> -u '<username>' -p '<password>' -M spider_plus -o DOWNLOAD_FLAG=true OUTPUT_FOLDER=.
+
+
+## Enumerating Password Policy
+
+# Password Policy NULL session
+nxc smb <ip> -u '' -p '' --pass-pol
+# Password Policy Anonymous session
+nxc smb <ip> -u 'anonymous' -p '' --local-auth --pass-pol
+# Password Policy Guest session
+nxc smb <ip> -u 'guest' -p '' --pass-pol
+# Password Policy Authenticated session
+nxc smb <ip> -u '<username>' -p '<password>' --pass-pol
+
+
+## Enumerating Users
+
+# Enumerate Users NULL session
+nxc smb <ip> -u '' -p '' --users
+# Enumerate Users Anonymous session
+nxc smb <ip> -u 'anonymous' -p '' --local-auth --users
+# Enumerate Users Guest session
+nxc smb <ip> -u 'guest' -p '' --users
+# Enumerate Users Authenticated session
+nxc smb <ip> -u '<username>' -p '<password>' --users
+
+
+## Enumerating Groups
+
+# Enumerate Groups NULL session
+nxc smb <ip> -u '' -p '' --groups
+# Enumerate Groups Anonymous session
+nxc smb <ip> -u 'anonymous' -p '' --local-auth --groups
+# Enumerate Groups Guest session
+nxc smb <ip> -u 'guest' -p '' --groups
+# Enumerate Groups Authenticated session
+nxc smb <ip> -u '<username>' -p '<password>' --groups
