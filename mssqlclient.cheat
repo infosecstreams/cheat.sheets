@@ -5,4 +5,4 @@
 ;$ password:  ''
 
 # MSSQLClient connect with username/password
-mssqlclient.py -show '<username>:<password>'@<ip> -windows-auth
+mssqlclient.py -show '<username>':'<password>'@<ip> -windows-auth
