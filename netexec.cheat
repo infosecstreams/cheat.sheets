@@ -48,7 +48,7 @@ nxc smb <ip> -u '<username>' -p '<password>' --get-file \\users\\public\\File.do
 
 
 ## Save a list of relays (SMB signing = False)
-.\nxc.exe smb <ip> --gen-relay-list relay-list.txt
+nxc smb <ip> --gen-relay-list relay-list.txt
 
 
 # Execute Command or file
