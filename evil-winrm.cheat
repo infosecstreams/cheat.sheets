@@ -1,0 +1,8 @@
+% Evil-WinRM
+
+;$ ip: $ip
+;$ username: ''
+;$ password:  ''
+
+# Connect to WinRM with Username/Password
+docker run --rm -tiv $PWD:/data --name evil-winrm oscarakaelvis/evil-winrm -i <ip> -u '<username>' -p '<password>'
