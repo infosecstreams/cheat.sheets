@@ -1,0 +1,11 @@
+% Bash Tricks
+
+## Various bash one-liners
+
+$ ip: ''
+$ port: '443'
+$ file: 'file.txt'
+
+# File transfer
+exec 3<>/dev/tcp/<ip>/<port>; echo -e "GET /<file> HTTP/1.1\r\nHost: <ip>\r\nConnection: close\r\n\r\n" >&3; { while IFS= read -r line; do [ "$line" = $'\r' ] && break; done; cat <&3 > <file>; } <&3; exec 3<&-; exec 3>&-
+

