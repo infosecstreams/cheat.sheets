@@ -1,0 +1,24 @@
+;$ to: ''
+;$ header: ''
+;$ body: ''
+;$ attach_file: ''
+;$ ip: ''
+;$ username_to_check: ''
+  
+# nmap smtp-enum-users script
+nmap --script smtp-enum-users.nse <ip>
+
+# swaks: Send Email - oneline command
+swaks --from attacker@email.com --to <to> --header <'header'> --body <'body'> --attach @<attach_file> --server <ip>
+# sendEmail: Send Email - oneline command
+sendEmail -f attacker@email.com -t <to> -u <'header'> -m <'body'> -a <attach_file> -s <ip> -v
+
+# smtp-user-enum: Enumerate users using VRFY  # options: -U usernames_file, -T targets_file
+smtp-user-enum -M VRFY -u <username_to_check> -t <ip>
+# smtp-user-enum: Enumerate users using EXPN
+smtp-user-enum -M EXPN -u <username_to_check> -t <ip>
+# smtp-user-enum: Enumerate users using RCPT
+smtp-user-enum -M RCPT -u <username_to_check> -t <ip>
+
+# Metasploit: Enumerate users
+msfconsole -n -q -x "use auxiliary/scanner/smtp/smtp_enum;set rhosts <ip>;set threads 5;run"
