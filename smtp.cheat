@@ -19,3 +19,6 @@ smtp-user-enum -M VRFY -u <username_to_check> -t <ip>
 smtp-user-enum -M EXPN -u <username_to_check> -t <ip>
 # smtp-user-enum: Enumerate users using RCPT
 smtp-user-enum -M RCPT -u <username_to_check> -t <ip>
+
+# Metasploit: Enumerate users
+msfconsole -n -q -x "use auxiliary/scanner/smtp/smtp_enum;set rhosts <ip>;set threads 5;run"
